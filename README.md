@@ -1,0 +1,2 @@
+# Gobang
+Web Gobang games
