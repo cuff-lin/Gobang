@@ -1,24 +1,27 @@
 <html>
 	<head>
-		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=yes">
         <title>Gobang</title>
-        <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no">
+        <meta name="viewport" content="width=750, user-scalable=no, target-densitydpi=device-dpi">
         <link rel="stylesheet" type="text/css"  href="src/main.css">
 	</head>
-
 	<body>
-		<div class="app">
-			<div id="game">
-				<div id="chessboard" class="chessboard"></div>
-				<div id="chessmans" class="chessmans"></div>
-			</div>
-			<br>
-			<div class="tools">
-				<button onclick="gobangGame.resetAndInit()">开始/重置</button>
-				<button onclick="gobangGame.regretChess()">悔棋</button>
-				<button onclick="gobangGame.revokedRegretChess()">撤销悔棋</button>
-			</div>
+		<div id="app">
+            <div class="gobang-tool">
+                <button onClick="newGameObj.initFn()">开始/再来一盘</button>
+                <button onClick="newGameObj.initFn()">悔棋</button>
+                <button onClick="newGameObj.initFn()">撤销悔棋</button>
+                <div id="cell--tip"></div>
+            </div>
+            <div id="gobang"></div>
         </div>
         <script src="src/index.js"></script>
+        <script>
+            const newGameObj = new Gobang({
+                el:'#gobang',
+                curRole:1,
+                sizeNum:30,
+                countNum:15
+            })
+        </script>
 	</body>
 </html>
