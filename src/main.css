@@ -39,7 +39,7 @@ html,body{
     box-shadow:2px 2px 4px rgba(0,0,0,0.4);
 }
 .gobang {
-    background:#eaeaea;
+    background:#c87d22;
     position: absolute;
     top: 0;
     bottom: 0;
@@ -54,7 +54,7 @@ html,body{
     position: relative;
     width: 100%;
     height: 100%;
-    border-top:1px solid #999;
+    border-top:1px solid #fff;
     box-sizing: border-box;
     margin:0;
     font-size: 0;
@@ -66,13 +66,13 @@ html,body{
     position: absolute;
     left: 0;
     top: 0;
-    background: #999;
+    background: #fff;
 }
 .cell{
     display: inline-block;
     vertical-align: middle;
     box-sizing: border-box;
-    border:1px solid #999;
+    border:1px solid #fff;
     border-left-color:transparent;
     border-top-color:transparent;
 }
