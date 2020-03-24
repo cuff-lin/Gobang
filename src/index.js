@@ -11,7 +11,7 @@ class Gobang {
         
         this.initFn();
         /* 监听新棋局动作 */
-        this.el.addEventListener('click',this.playFn.bind(this),true);
+        this.el.addEventListener('click',this.debounceFn(this.playFn.bind(this),100),true);
     }
     /* 初始化当前棋局 */
     initFn(){
@@ -59,6 +59,9 @@ class Gobang {
     }
     /* 下棋 */
     playFn(e){
+        if(e.target.className !== 'cell' || e.target.tagName !== 'SPAN'){
+            return;
+        }
         /* 计算点击的坐标 */
         let x = Math.round(e.layerX / this.cellSizeNum);
         let y = Math.round(e.layerY / this.cellSizeNum);
@@ -97,6 +100,20 @@ class Gobang {
     /* 判断输赢 */
     judgeFn(){
         
+    }
+    /* 防抖 */
+    debounceFn(callback, wait) {
+        let bool = true;
+        return function() {
+            let args = arguments;
+            if(typeof callback === 'function' && bool){
+                callback.apply(this, args);
+                bool = false;
+                setTimeout(()=>{
+                    bool = true;
+                },wait);
+            }
+        }
     }
 }
 
