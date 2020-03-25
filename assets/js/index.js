@@ -30,9 +30,8 @@ class parentGobang {
             }
         }
         /* 判断是重来还是第一次进入 */
-        if(!this.checkerboardObj){
-            this.checkerboardObj = this.createCheckerboardFn();
-        }
+        this.el.innerHTML = '';
+        this.checkerboardObj = this.createCheckerboardFn();
     }
     /* 下棋 */
     playFn(e){
@@ -130,6 +129,7 @@ class domGobang extends parentGobang{
         });
         let cellElStr = `<div class="cell-box">` + cellArr.join('') + `</div>`;
         this.el.innerHTML = cellElStr;
+        return true;
     }
     /* 创建棋子 */
     createPieceFn(x,y){
@@ -178,6 +178,11 @@ class canvasGobang extends parentGobang{
         this.canvas.width = this.cellSizeNum * this.countNum + 1;
         this.canvas.height = this.cellSizeNum * this.countNum + 1;
         this.el.appendChild(this.canvas);
+        this.drawCheckerboardFn();
+        return true;
+    }
+    /* 画线条 */
+    drawCheckerboardFn(){
         this.ctx = this.canvas.getContext('2d');
         this.ctx.strokeStyle = '#fff';
         for (var i = 0; i <= this.countNum; i++) {
@@ -208,14 +213,15 @@ class canvasGobang extends parentGobang{
         }
         this.ctx.fillStyle = grd;
         this.ctx.fill();
-        let sizeNum = this.cellSizeNum * this.countNum + 1;
-        this.historyArr[this.curHisIndex].canvas = this.ctx.getImageData(0,0,sizeNum,sizeNum);
+        if(this.historyArr[this.curHisIndex]){
+            let sizeNum = this.cellSizeNum * this.countNum + 1;
+            this.historyArr[this.curHisIndex].canvas = this.ctx.getImageData(0,0,sizeNum,sizeNum);
+        }
     }
     /* 悔棋 */
     regretFn(){
-        if(this.curHisIndex && !this.isEndBool){/* 结束了就不能悔棋了 */
-            console.log(this.curHisIndex);
-            let curHisObj = this.historyArr[--this.curHisIndex];/* 需要悔棋的棋子坐标 */
+        let curHisObj = this.historyArr[--this.curHisIndex];/* 需要悔棋的棋子坐标 */
+        if(this.curHisIndex && !this.isEndBool && curHisObj && curHisObj.canvas){
             this.ctx.putImageData(curHisObj.canvas,0,0);
             this.curCheckerArr[curHisObj.x][curHisObj.y] = 0;/* 清除悔棋坐标数据 */
             this.curRole = this.curRole === 1 ? 2 : 1;
