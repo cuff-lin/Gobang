@@ -120,7 +120,7 @@ class Gobang {
         if(judgeWin(xArr) || judgeWin(yArr) || judgeWin(bSlashArr) || judgeWin(slashArr)) {
             this.isEndBool = true;
             setTimeout(()=>{
-                alert((this.curRole === 1 ? '白' : '黑') + '子胜');
+                alert((this.curRole === 1 ? '白' : '黑') + '方胜');
             });
             return true;
         }
