@@ -7,21 +7,31 @@
 	<body>
 		<div id="app">
             <div class="gobang-tool">
-                <button onClick="newGameObj.initFn()">开始/再来一盘</button>
-                <button onClick="newGameObj.regretFn()">悔棋</button>
-                <button onClick="newGameObj.withDrawFn()">撤销悔棋</button>
+                <button onClick="changeTypeFn('dom')">切换成 dom</button>
+                <button onClick="changeTypeFn('canvas')">切换成 canvas</button>
+                <button onClick="gobangObj.initFn()">开始/再来一盘</button>
+                <button onClick="gobangObj.regretFn()">悔棋</button>
+                <button onClick="gobangObj.withDrawFn()">撤销悔棋</button>
                 <div id="cell--tip"></div>
             </div>
             <div id="gobang"></div>
         </div>
         <script src="assets/js/index.js"></script>
         <script>
-            const newGameObj = new Gobang({
-                el:'#gobang',
-                curRole:2,
-                sizeNum:30,
-                countNum:15
-            })
+            changeTypeFn('canvas');
+            var gobangObj = null;
+            function changeTypeFn(type){
+                if(gobangObj){
+                    gobangObj.el.innerHTML = '';
+                }
+                gobangObj = new Gobang({
+                    el:'#gobang',
+                    curRole:2,
+                    sizeNum:30,/* 棋子大小 */
+                    countNum:15,/* 棋盘行列 */
+                    type:type/* canvas/dom 默认用 canvas 实现 */
+                })
+            }
         </script>
 	</body>
 </html>
