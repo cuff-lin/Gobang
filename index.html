@@ -8,8 +8,8 @@
 		<div id="app">
             <div class="gobang-tool">
                 <button onClick="newGameObj.initFn()">开始/再来一盘</button>
-                <button onClick="newGameObj.initFn()">悔棋</button>
-                <button onClick="newGameObj.initFn()">撤销悔棋</button>
+                <button onClick="newGameObj.regretFn()">悔棋</button>
+                <button onClick="newGameObj.withDrawFn()">撤销悔棋</button>
                 <div id="cell--tip"></div>
             </div>
             <div id="gobang"></div>
@@ -18,7 +18,7 @@
         <script>
             const newGameObj = new Gobang({
                 el:'#gobang',
-                curRole:1,
+                curRole:2,
                 sizeNum:30,
                 countNum:15
             })

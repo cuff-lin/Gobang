@@ -12,6 +12,8 @@ class Gobang {
         this.initFn();
         /* 监听新棋局动作 */
         this.el.addEventListener('click',this.debounceFn(this.playFn.bind(this),100),true);
+        this.cellTipEl = document.getElementById('cell--tip');
+        this.cellTipEl.className = this.curRole === 1 ? 'cell-tip--white' : 'cell-tip--black';
     }
     /* 初始化当前棋局 */
     initFn(){
@@ -30,8 +32,6 @@ class Gobang {
         /* 判断是重来还是第一次进入 */
         if(!this.checkerboardObj){
             this.checkerboardObj = this.createCheckerboardFn();
-        }else {
-            this.updateCheckerboardFn();
         }
     }
     /* 创建棋盘 */
@@ -46,16 +46,6 @@ class Gobang {
         this.el.style.height = this.cellSizeNum * this.countNum + 'px';
         this.el.innerHTML = cellElStr;
         this.el.className = 'gobang';
-    }
-    /* 更新棋盘 */
-    updateCheckerboardFn(arr){
-        this.curCheckerArr = [];
-        for(let x=0;x<=this.countNum;x++ ){
-            this.curCheckerArr[x] = [];/* 创建行 */
-            for(let y=0;y<=this.countNum;y++ ){
-                this.curCheckerArr[x][y] = 0;/* 创建列并将棋盘坐标的棋子清空 0-空 1-白子 2-黑子 */
-            }
-        }
     }
     /* 下棋 */
     playFn(e){
@@ -75,31 +65,88 @@ class Gobang {
                 y,
                 role:this.curRole
             })
-
-            this.judgeFn();/* 判断输赢 */
-
             this.curHisIndex++;/* 快照版本索引 + 1 */
-            this.curRole = this.curRole === 1 ? 2 : 1;/* 换角色 */
 
+            /* 判断输赢 */
+            if(this.judgeFn(x,y)){
+                return;
+            }
             /* 改变当前回合玩家 */
-            let cellTipEl = document.getElementById('cell--tip');
-            cellTipEl.className = newGameObj.curRole === 1 ? 'cell-tip--black' : 'cell-tip--white';
+            this.curRole = this.curRole === 1 ? 2 : 1;/* 换角色 */
+            this.cellTipEl.className = this.curRole === 1 ? 'cell-tip--white' : 'cell-tip--black';
         }
     }
     /* 创建棋子 */
     createPieceFn(x,y){
         const pieceEl = document.createElement('div');
-        pieceEl.className = this.curRole === 1 ? 'cell--black' : 'cell--white';
+        pieceEl.className = this.curRole === 1 ? 'cell--white' : 'cell--black';
+        pieceEl.setAttribute('id',`piece-${x}-${y}`);/* 设置棋子唯一id，用来悔棋时清除 */
         pieceEl.style.width = this.sizeNum + 'px';
         pieceEl.style.height = this.sizeNum + 'px';
         pieceEl.style.left = (x * this.cellSizeNum - 0.5 * this.sizeNum) + 'px';
         pieceEl.style.top = (y * this.cellSizeNum - 0.5 * this.sizeNum)  + 'px';
-        console.log(x,y);
         this.el.children[0].appendChild(pieceEl);
     }
     /* 判断输赢 */
-    judgeFn(){
-        
+    judgeFn(x,y){        
+        /* 当前棋子所在 x 轴数据 */
+        const xArr = this.curCheckerArr.map(x=>{
+            return x[y];
+        });
+        const yArr = this.curCheckerArr[x];/* y 轴数据 */
+        const bSlashArr = [];/* 左斜线数据 */
+        const slashArr = [];/* 右斜线数据 */
+        this.curCheckerArr.forEach((item, index) => {
+            const bItem = item[y - (x - index)];
+            if(bItem !== undefined) {
+                bSlashArr.push(bItem);
+            }
+            const sItem = item[y + (x - index)];
+            if(sItem !== undefined) {
+                slashArr.push(sItem);
+            }
+        });
+        /* 判断数组是否有 5 个连续相等的棋子 */
+        function judgeWin(arr) {
+            let bool = arr.some((item,index) => {
+                return (arr[index] !== 0 &&
+                arr[index - 2] === arr[index - 1] &&
+                arr[index - 1] === arr[index] &&
+                arr[index] === arr[index + 1] &&
+                arr[index + 1] === arr[index + 2])
+            });
+            return bool;
+        }
+        if(judgeWin(xArr) || judgeWin(yArr) || judgeWin(bSlashArr) || judgeWin(slashArr)) {
+            this.isEndBool = true;
+            setTimeout(()=>{
+                alert((this.curRole === 1 ? '白' : '黑') + '子胜');
+            });
+            return true;
+        }
+    }
+    /* 悔棋 */
+    regretFn(){
+        if(this.curHisIndex && !this.isEndBool){/* 结束了就不能悔棋了 */
+            let curHisObj = this.historyArr[this.curHisIndex - 1];/* 需要悔棋的棋子坐标 */
+            const curHisEl = document.getElementById(`piece-${curHisObj.x}-${curHisObj.y}`);
+            this.el.children[0].removeChild(curHisEl);
+            this.curCheckerArr[curHisObj.x][curHisObj.y] = 0;/* 清除悔棋坐标数据 */
+            this.curHisIndex--;
+            this.curRole = this.curRole === 1 ? 2 : 1;
+            this.cellTipEl.className = this.curRole === 1 ? 'cell-tip--white' : 'cell-tip--black';
+        }
+    }
+    /* 撤销悔棋 */
+    withDrawFn(){
+        if(this.curHisIndex < this.historyArr.length){
+            let curHisObj = this.historyArr[this.curHisIndex];/* 需要撤销悔棋的棋子坐标 */
+            this.createPieceFn(curHisObj.x,curHisObj.y);
+            this.curCheckerArr[curHisObj.x][curHisObj.y] = curHisObj.role;/* 恢复悔棋坐标数据 */
+            this.curHisIndex++;
+            this.curRole = this.curRole === 1 ? 2 : 1;
+            this.cellTipEl.className = this.curRole === 1 ? 'cell-tip--white' : 'cell-tip--black';
+        }
     }
     /* 防抖 */
     debounceFn(callback, wait) {
