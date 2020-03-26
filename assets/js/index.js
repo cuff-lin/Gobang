@@ -144,10 +144,11 @@ class domGobang extends parentGobang{
     }
     /* 悔棋 */
     regretFn(){
-        if(this.curHisIndex && !this.isEndBool){/* 结束了就不能悔棋了 */
-            let curHisObj = this.historyArr[--this.curHisIndex];/* 需要悔棋的棋子坐标 */
+        let curHisObj = this.historyArr[this.curHisIndex - 1];/* 需要悔棋的棋子坐标 */
+        if(this.curHisIndex !== undefined && curHisObj && !this.isEndBool){/* 结束了就不能悔棋了 */
             const curHisEl = document.getElementById(`piece-${curHisObj.x}-${curHisObj.y}`);
             this.el.children[0].removeChild(curHisEl);
+            this.curHisIndex--;
             this.curCheckerArr[curHisObj.x][curHisObj.y] = 0;/* 清除悔棋坐标数据 */
             this.curRole = this.curRole === 1 ? 2 : 1;
             this.cellTipEl.className = this.curRole === 1 ? 'cell-tip--white' : 'cell-tip--black';
@@ -159,9 +160,12 @@ class canvasGobang extends parentGobang{
     constructor(optObj){
         super(optObj);
         let sizeNum = this.cellSizeNum * this.countNum + 1;
+        this.el.style.width = this.cellSizeNum * (this.countNum + 1) + 'px';
+        this.el.style.height = this.cellSizeNum * (this.countNum + 1) + 'px';
         this.historyArr = [{
             x:0,
             y:0,
+            role:this.curRole,
             canvas:this.ctx.getImageData(0,0,sizeNum,sizeNum)
         }];
         /* 监听新棋局动作 */
@@ -169,14 +173,18 @@ class canvasGobang extends parentGobang{
             if(e.target.tagName !== 'CANVAS'){
                 return;
             }
-            this.playFn(e);
+            let evt = {
+                layerX:e.layerX - 0.5*this.cellSizeNum,
+                layerY:e.layerY - 0.5*this.cellSizeNum
+            }
+            this.playFn(evt);
         },true);
     }
     /* 创建 canvas 棋盘 */
     createCheckerboardFn(){
         this.canvas = document.createElement('canvas');
-        this.canvas.width = this.cellSizeNum * this.countNum + 1;
-        this.canvas.height = this.cellSizeNum * this.countNum + 1;
+        this.canvas.width = this.cellSizeNum * (this.countNum + 1);
+        this.canvas.height = this.cellSizeNum * (this.countNum + 1);
         this.el.appendChild(this.canvas);
         this.drawCheckerboardFn();
         return true;
@@ -185,21 +193,22 @@ class canvasGobang extends parentGobang{
     drawCheckerboardFn(){
         this.ctx = this.canvas.getContext('2d');
         this.ctx.strokeStyle = '#fff';
+        let cellHalf = 0.5*this.cellSizeNum;
         for (var i = 0; i <= this.countNum; i++) {
             /* 画竖线 */
-            this.ctx.moveTo(this.cellSizeNum*i + 0.5, 0);/* + 0.5解决线条过粗的问题 */
-            this.ctx.lineTo(this.cellSizeNum*i + 0.5, this.cellSizeNum*this.countNum);
+            this.ctx.moveTo(this.cellSizeNum*i + cellHalf, cellHalf);/* + 0.5解决线条过粗的问题 */
+            this.ctx.lineTo(this.cellSizeNum*i + cellHalf, this.cellSizeNum*this.countNum + cellHalf);
             this.ctx.stroke();
             /* 画横线 */
-            this.ctx.moveTo(0,this.cellSizeNum*i + 0.5);
-            this.ctx.lineTo(this.cellSizeNum*this.countNum,this.cellSizeNum*i + 0.5);
+            this.ctx.moveTo(cellHalf,this.cellSizeNum*i + cellHalf);
+            this.ctx.lineTo(this.cellSizeNum*this.countNum + cellHalf,this.cellSizeNum*i + cellHalf);
             this.ctx.stroke();
         }
     }
     /* 创建棋子 */
-    createPieceFn(x,y){        
-        let left = x * this.cellSizeNum;
-        let top = y * this.cellSizeNum;
+    createPieceFn(x,y){      
+        let left = x * this.cellSizeNum + 0.5*this.cellSizeNum;
+        let top = y * this.cellSizeNum + 0.5*this.cellSizeNum
         this.ctx.beginPath();
         this.ctx.arc(left,top,this.sizeNum/2,0,Math.PI*2);
 
@@ -220,18 +229,19 @@ class canvasGobang extends parentGobang{
     }
     /* 悔棋 */
     regretFn(){
-        let curHisObj = this.historyArr[--this.curHisIndex];/* 需要悔棋的棋子坐标 */
-        if(this.curHisIndex && !this.isEndBool && curHisObj && curHisObj.canvas){
+        let curHisObj = this.historyArr[this.curHisIndex - 1];/* 需要悔棋的棋子坐标 */
+        if(this.curHisIndex != undefined && !this.isEndBool && curHisObj && curHisObj.canvas){
             this.ctx.putImageData(curHisObj.canvas,0,0);
             this.curCheckerArr[curHisObj.x][curHisObj.y] = 0;/* 清除悔棋坐标数据 */
             this.curRole = this.curRole === 1 ? 2 : 1;
+            this.curHisIndex--;
             this.cellTipEl.className = this.curRole === 1 ? 'cell-tip--white' : 'cell-tip--black';
         }
     }
     /* 撤销悔棋 */
     withDrawFn(){
         let curHisObj = this.historyArr[this.curHisIndex + 1];/* 需要撤销悔棋的棋子坐标 */
-        if(this.curHisIndex < this.historyArr.length && curHisObj){
+        if(this.curHisIndex < this.historyArr.length - 1 && curHisObj){
             this.createPieceFn(curHisObj.x,curHisObj.y);
             this.curCheckerArr[curHisObj.x][curHisObj.y] = curHisObj.role;/* 恢复悔棋坐标数据 */
             this.curHisIndex++;

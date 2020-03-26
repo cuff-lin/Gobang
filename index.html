@@ -7,6 +7,7 @@
 	<body>
 		<div id="app">
             <div class="gobang-tool">
+                <button id="btn" onClick="changeTypeFn()">DOM 版</button>
                 <button onClick="gobangObj.initFn()">开始/再来一盘</button>
                 <button onClick="gobangObj.regretFn()">悔棋</button>
                 <button onClick="gobangObj.withDrawFn()">撤销悔棋</button>
@@ -17,18 +18,24 @@
         <script src="assets/js/index.js"></script>
         <script>
             var gobangObj = null;
-            changeTypeFn('canvas');
-            function changeTypeFn(type){
-                // if(gobangObj){
-                //     gobangObj.el.innerHTML = '';
-                // }
+            let type = 'dom';
+            let btnEl = document.getElementById('btn');
+            changeTypeFn();
+            function changeTypeFn(){
                 gobangObj = new Gobang({
                     el:'#gobang',
-                    curRole:2,
+                    curRole:2,/* 当前角色 */
                     sizeNum:30,/* 棋子大小 */
                     countNum:15,/* 棋盘行列 */
                     type:type/* canvas/dom 默认用 canvas 实现 */
                 })
+                if(type === 'dom'){
+                    btnEl.innerHTML = '切换canvas'
+                    type = 'canvas';
+                }else{
+                    type = 'dom';
+                    btnEl.innerHTML = '切换DOM'
+                }
             }
         </script>
 	</body>
