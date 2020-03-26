@@ -1,0 +1,32 @@
+{
+  "name": "Gobang",
+  "version": "1.0.0",
+  "description": "![image](https://raw.githubusercontent.com/cuff-lin/Gobang/master/assets/imgs/readme.png)",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "commitmsg": "commitlint -e $GIT_PARAMS"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cuff-lin/Gobang.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/cuff-lin/Gobang/issues"
+  },
+  "homepage": "https://github.com/cuff-lin/Gobang#readme",
+  "devDependencies": {
+    "@commitlint/cli": "^8.3.5",
+    "@commitlint/config-conventional": "^8.3.4",
+    "husky": "^4.2.3",
+    "lint-staged": "^10.0.9"
+  },
+  "config": {
+    "commitizen": {
+      "path": "cz-customizable"
+    }
+  }
+}
